@@ -1,4 +1,4 @@
-#
+b#
 # Copyright (C) 2015 The CyanogenMod Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,10 +53,6 @@ PRODUCT_PACKAGES += \
     init.qcom.post_boot.sh \
     init.qcom.ril.sh \
     init.qcom.uicc.sh
-
-# RIL
-PRODUCT_PACKAGES += \
-    libcnefeatureconfig
 
 # Permissions
 PRODUCT_COPY_FILES += \
@@ -231,7 +227,7 @@ PRODUCT_COPY_FILES += \
 
 # RIL
 PRODUCT_PACKAGES += \
-    libcnefeatureconfig \
+    libcnefeatureconfig
 
 # Sensors
 PRODUCT_COPY_FILES += \
@@ -276,6 +272,5 @@ PRODUCT_PACKAGES += \
     curl \
     libnl_2 \
     libbson \
-    libcnefeatureconfig \
     libtinyxml \
     libxml2
