@@ -170,7 +170,6 @@ vendor/lib/libRSDriver_adreno.so
 vendor/lib/libSHIMDivxDrm.so
 vendor/lib/libSSEPKCS11.so
 vendor/lib/libSecureUILib.so
-vendor/lib/libStDrvInt.so
 vendor/lib/libSubSystemShutdown.so
 vendor/lib/libTimeService.so
 vendor/lib/libacdb-fts.so
@@ -494,7 +493,6 @@ vendor/lib64/libRSDriver_adreno.so
 vendor/lib64/libSHIMDivxDrm.so
 vendor/lib64/libSSEPKCS11.so
 vendor/lib64/libSecureUILib.so
-vendor/lib64/libStDrvInt.so
 vendor/lib64/libSubSystemShutdown.so
 vendor/lib64/libTimeService.so
 vendor/lib64/libacdb-fts.so
