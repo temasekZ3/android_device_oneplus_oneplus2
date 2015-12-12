@@ -232,7 +232,6 @@ PRODUCT_COPY_FILES += \
 # RIL
 PRODUCT_PACKAGES += \
     libcnefeatureconfig \
-    libril_shim
 
 # Sensors
 PRODUCT_COPY_FILES += \
