@@ -40,6 +40,8 @@ on init
     # Preload the BoringSSL wrapper
     export LD_PRELOAD "libboringssl-compat.so"
 
+    chmod 0660 /dev/smem_log
+
     mkdir /firmware 0771 system system
     mkdir /bt_firmware 0771 system system
     mkdir /persist 0771 system system
