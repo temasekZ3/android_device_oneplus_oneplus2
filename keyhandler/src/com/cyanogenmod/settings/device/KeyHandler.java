@@ -22,6 +22,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -46,6 +47,8 @@ import android.provider.Settings.Global;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManagerGlobal;
+
+import cyanogenmod.providers.CMSettings;
 
 import com.android.internal.os.DeviceKeyHandler;
 import com.android.internal.util.ArrayUtils;
@@ -92,8 +95,12 @@ public class KeyHandler implements DeviceKeyHandler {
     private CameraManager mCameraManager;
     private String mRearCameraId;
     private boolean mTorchEnabled;
+    private Sensor mProximitySensor;
     private Vibrator mVibrator;
+    private WakeLock mProximityWakeLock;
     private WakeLock mGestureWakeLock;
+    private int mProximityTimeOut;
+    private boolean mProximityWakeSupported;
 
     private boolean mNotificationSliderVibrate;
 
@@ -103,6 +110,19 @@ public class KeyHandler implements DeviceKeyHandler {
         mEventHandler = new EventHandler();
         mGestureWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 "GestureWakeLock");
+
+        final Resources resources = mContext.getResources();
+        mProximityTimeOut = resources.getInteger(
+                org.cyanogenmod.platform.internal.R.integer.config_proximityCheckTimeout);
+        mProximityWakeSupported = resources.getBoolean(
+                org.cyanogenmod.platform.internal.R.bool.config_proximityCheckOnWake);
+
+        if (mProximityWakeSupported) {
+            mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+            mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+            mProximityWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    "ProximityWakeLock");
+        }
 
         mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         if (mVibrator == null || !mVibrator.hasVibrator()) {
@@ -223,7 +243,17 @@ public class KeyHandler implements DeviceKeyHandler {
         }
         boolean isKeySupported = ArrayUtils.contains(sSupportedGestures, event.getScanCode());
         if (isKeySupported && !mEventHandler.hasMessages(GESTURE_REQUEST)) {
-            mEventHandler.sendMessage(getMessageForKeyEvent(event));
+            Message msg = getMessageForKeyEvent(event);
+            boolean defaultProximity = mContext.getResources().getBoolean(
+                org.cyanogenmod.platform.internal.R.bool.config_proximityCheckOnWakeEnabledByDefault);
+            boolean proximityWakeCheckEnabled = CMSettings.System.getInt(mContext.getContentResolver(),
+                    CMSettings.System.PROXIMITY_ON_WAKE, defaultProximity ? 1 : 0) == 1;
+            if (mProximityWakeSupported && proximityWakeCheckEnabled && mProximitySensor != null) {
+                mEventHandler.sendMessageDelayed(msg, mProximityTimeOut);
+                processEvent(event);
+            } else {
+                mEventHandler.sendMessage(msg);
+            }
         }
         return isKeySupported;
     }
@@ -232,6 +262,30 @@ public class KeyHandler implements DeviceKeyHandler {
         Message msg = mEventHandler.obtainMessage(GESTURE_REQUEST);
         msg.obj = keyEvent;
         return msg;
+    }
+
+    private void processEvent(final KeyEvent keyEvent) {
+        mProximityWakeLock.acquire();
+        mSensorManager.registerListener(new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                mProximityWakeLock.release();
+                mSensorManager.unregisterListener(this);
+                if (!mEventHandler.hasMessages(GESTURE_REQUEST)) {
+                    // The sensor took to long, ignoring.
+                    return;
+                }
+                mEventHandler.removeMessages(GESTURE_REQUEST);
+                if (event.values[0] == mProximitySensor.getMaximumRange()) {
+                    Message msg = getMessageForKeyEvent(keyEvent);
+                    mEventHandler.sendMessage(msg);
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+        }, mProximitySensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     private void dispatchMediaKeyWithWakeLockToMediaSession(int keycode) {

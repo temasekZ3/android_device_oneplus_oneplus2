@@ -51,8 +51,7 @@ PRODUCT_PACKAGES += \
     init.qcom.bt.sh \
     init.qcom.fm.sh \
     init.qcom.post_boot.sh \
-    init.qcom.ril.sh \
-    init.qcom.uicc.sh
+    init.qcom.ril.sh
 
 # Permissions
 PRODUCT_COPY_FILES += \
@@ -108,7 +107,9 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/audio/audio_platform_info.xml:system/etc/audio_platform_info.xml \
     $(LOCAL_PATH)/audio/audio_policy.conf:system/etc/audio_policy.conf \
     $(LOCAL_PATH)/audio/listen_platform_info.xml:system/etc/listen_platform_info.xml \
-    $(LOCAL_PATH)/audio/mixer_paths.xml:system/etc/mixer_paths.xml
+    $(LOCAL_PATH)/audio/mixer_paths.xml:system/etc/mixer_paths.xml \
+    $(LOCAL_PATH)/audio/sound_trigger_mixer_paths.xml:system/etc/sound_trigger_mixer_paths.xml \
+    $(LOCAL_PATH)/audio/sound_trigger_platform_info.xml:system/etc/sound_trigger_platform_info.xml
 
 PRODUCT_PACKAGES += \
     audiod \
@@ -124,6 +125,10 @@ PRODUCT_PACKAGES += \
     libqcompostprocbundle \
     libqcomvisualizer \
     libqcomvoiceprocessing
+
+# Camera
+PRODUCT_PACKAGES += \
+    libcamera_shim
 
 # Charger
 PRODUCT_PACKAGES += \
@@ -228,10 +233,6 @@ PRODUCT_COPY_FILES += \
 # RIL
 PRODUCT_PACKAGES += \
     libcnefeatureconfig
-    
-# Camera
-PRODUCT_PACKAGES += \
-    libcamera_shim
 
 # Sensors
 PRODUCT_COPY_FILES += \
@@ -266,8 +267,7 @@ PRODUCT_PACKAGES += \
     hostapd.deny
 
 PRODUCT_PACKAGES += \
-    wcnss_service \
-    libwcnss_qmi
+    wcnss_service
 
 # Misc dependency packages
 PRODUCT_PACKAGES += \
@@ -276,5 +276,6 @@ PRODUCT_PACKAGES += \
     curl \
     libnl_2 \
     libbson \
+    libcnefeatureconfig \
     libtinyxml \
     libxml2
