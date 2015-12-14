@@ -37,11 +37,11 @@ on early-fs
 
 on init
 
-    # Preload the BoringSSL wrapper
+ # Preload the BoringSSL wrapper
     export LD_PRELOAD "libboringssl-compat.so"
-
-    chmod 0660 /dev/smem_log
-
+ 
+    export LD_SHIM_LIBS "/system/lib/hw/camera.msm8994.so|libcamera_shim.so"
+ 
     mkdir /firmware 0771 system system
     mkdir /bt_firmware 0771 system system
     mkdir /persist 0771 system system
